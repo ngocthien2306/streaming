@@ -25,8 +25,8 @@ app.add_middleware(
 )
 
 add_docs_router(app)
-app.include_router(stream_manage_router.router)
-app.include_router(onvif_router.router)
+app.include_router(stream_manage_router.router, tags=['Streaming'])
+app.include_router(onvif_router.router, tags=['Onvif'])
 
 
 @app.get("/all-thread")

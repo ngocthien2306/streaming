@@ -4,14 +4,17 @@ import time
 from utils import model
 from utils.logging_system import logger
 from utils.project_config import project_config
-
+from utils.utils import *
 from backing_services.mongo_db import db_connect
 from backing_services.kafka_connection import ProducerWrapper
+import requests
 
 if project_config.STREAM_ENGINE == "VLC":
     from streaming.vlc_streaming import VLCStreaming as StreamEngine
 elif project_config.STREAM_ENGINE == "GS":
     from streaming.gs_streaming import GSStreaming as StreamEngine
+
+
 
 class StreamManage:
     def __init__(self) -> None:
@@ -23,13 +26,31 @@ class StreamManage:
         self._cameras_rtsp_link = []
 
         self._prefix_topic = "streaming_"
-
         self.init()
+    
+    def get_camera_by_server_name(self):
+        server_name = get_computer_name()
+        root_url = f'http://192.168.1.35:8080/camera/{server_name}'
+        res = requests.get(root_url)
+        content = res.json()
+        return content['data']['cameras']
+        
+    def get_camera_by_server_name_1(self):
+        server_name = get_computer_name()
+        collection = db_connect.get_collection('servers')
+        server = collection.find_one({'server_name': server_name})
+        
+        print(server)
+        
+        cursor = db_connect._collection.find({'server_id': server['server_id']})
+        cameras = list(cursor)
+        return cameras
 
     def init(self):
-        all_records = list(db_connect.find_all())
+        all_records = self.get_camera_by_server_name()
+
         for record in all_records:
-            record.pop("_id")
+            record.pop("id")
             camera = model.Camera(**record)
             self._cameras_id.append(camera.camera_id)
             self._cameras_rtsp_link.append(camera.rtsp_link)
@@ -43,11 +64,7 @@ class StreamManage:
             logger.info(f"Init Camera: {camera.dict()}")
 
     def add_camera(self, camera: model.Camera):
-        if self.check_camera_id_exist(camera.camera_id):
-            raise Exception("Camera ID already exists")
-        if self.check_rtsp_exist(camera.rtsp_link):
-            raise Exception("RTSP Link already exists")
-        
+
         logger.info(f"Add Camera: {camera.dict()}")
         self._cameras_id.append(camera.camera_id)
         self._cameras_rtsp_link.append(camera.rtsp_link)
@@ -60,7 +77,7 @@ class StreamManage:
                     output_size=(camera.output_width, camera.output_height)
                     )
 
-        db_connect.insert_one(camera.dict())
+        
         return model.CameraResponse(
             **{
                 **camera.dict(), 
@@ -68,9 +85,7 @@ class StreamManage:
             })
 
     def delete_camera(self, camera_id: str):
-        if not self.check_camera_id_exist(camera_id):
-            raise Exception("Camera ID not exists")
-        
+
         logger.info(f"Delete Camera: {camera_id}")
         camera = self._cameras.get(camera_id)
         self._cameras_id.remove(camera_id)
@@ -80,7 +95,6 @@ class StreamManage:
         del self._cameras[camera_id]
         del self._players[camera_id]
         
-        db_connect.delete_one({"camera_id": camera_id})
         return ""
 
 

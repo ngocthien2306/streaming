@@ -5,12 +5,15 @@ from utils import model
 from utils.project_config import project_config
 from services.stream_manage import StreamManage
 
+global stream_manage
+
 router = APIRouter(prefix="/stream-manage")
 stream_manage = StreamManage()
 
 @router.post("/camera", response_model=model.Reponse[model.CameraResponse])
 async def add_camera(camera: model.Camera):
     try:
+        print(camera)
         result = stream_manage.add_camera(camera)
         return {"data": result}
     except Exception as e:
@@ -24,6 +27,18 @@ async def delete_camera(camera_id: str):
     try:
         result = stream_manage.delete_camera(camera_id)
         return {"data": result}
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+        
+@router.get("/camera/refresh", response_model=model.Reponse[object])
+async def refresh_camera():
+    global stream_manage
+    try:
+        stream_manage = StreamManage()
+        return {"message": 'Refresh camera successfully', "status_code": 200}
     except Exception as e:
         raise HTTPException(
             status_code=400,
