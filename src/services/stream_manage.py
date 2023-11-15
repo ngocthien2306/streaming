@@ -34,17 +34,6 @@ class StreamManage:
         res = requests.get(root_url)
         content = res.json()
         return content['data']['cameras']
-        
-    def get_camera_by_server_name_1(self):
-        server_name = get_computer_name()
-        collection = db_connect.get_collection('servers')
-        server = collection.find_one({'server_name': server_name})
-        
-        print(server)
-        
-        cursor = db_connect._collection.find({'server_id': server['server_id']})
-        cameras = list(cursor)
-        return cameras
 
     def init(self):
         all_records = self.get_camera_by_server_name()
