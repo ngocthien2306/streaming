@@ -5,8 +5,6 @@ from utils import model
 from utils.logging_system import logger
 from utils.project_config import project_config
 from utils.utils import *
-from backing_services.mongo_db import db_connect
-from backing_services.kafka_connection import ProducerWrapper
 import requests
 
 if project_config.STREAM_ENGINE == "VLC":
@@ -26,18 +24,28 @@ class StreamManage:
         self._cameras_rtsp_link = []
 
         self._prefix_topic = "streaming_"
+    
         self.init()
     
     def get_camera_by_server_name(self):
         server_name = get_computer_name()
-        root_url = f'http://192.168.1.35:8080/camera/{server_name}'
+        root_url = f'http://172.20.10.2:8080/camera/{server_name}'
         res = requests.get(root_url)
         content = res.json()
         return content['data']['cameras']
+    
+    def update_ip(self):
+        root_url = f'http://172.20.10.2:8080/server/update-ip'
+        res = requests.put(root_url, json={'ip': get_ipv4_address(), 'server_name': get_computer_name()})
+        content = res.json()
+        print(content)
+        
+
 
     def init(self):
+        self.update_ip()        
         all_records = self.get_camera_by_server_name()
-
+        
         for record in all_records:
             record.pop("id")
             camera = model.Camera(**record)
@@ -48,7 +56,8 @@ class StreamManage:
                     rtsp_link=camera.rtsp_link,
                     producer=None,
                     frame_rate=camera.frame_rate,
-                    output_size=(camera.output_width, camera.output_height)
+                    output_size=(camera.output_width, camera.output_height),
+                    camera_id=camera.camera_id
                     )
             logger.info(f"Init Camera: {camera.dict()}")
 
