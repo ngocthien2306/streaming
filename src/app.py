@@ -40,4 +40,4 @@ def all_thread():
 
 if __name__ == '__main__':
     logger.info(f"Starting Camera Service - Config: {project_config.dict()}")
-    uvicorn.run(app, host="172.20.10.2", port=project_config.CAMERA_SERVICE_PORT)
+    uvicorn.run(app, host="26.30.0.242", port=project_config.CAMERA_SERVICE_PORT)

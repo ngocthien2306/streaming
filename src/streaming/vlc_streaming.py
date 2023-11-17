@@ -46,10 +46,9 @@ class VLCStreaming:
         
     def update_camera_status(self):
         try:
-            root_url = f'http://172.20.10.2:8080/camera/update-status'
+            root_url = f'http://26.30.0.242:8080/camera/update-status'
             res = requests.put(root_url, json={'camera_id': self._camera_id, 'camera_status': self._state})
             content = res.json()
-            print(content)
         except Exception as e:
             logger.error(f"Call API ocour an error: {str(e)}")
             
