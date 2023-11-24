@@ -30,7 +30,7 @@ class StreamManage:
     def get_camera_by_server_name(self):
         try:
             server_name = get_computer_name()
-            root_url = f'http://26.30.0.242:8080/camera/{server_name}'
+            root_url = f'http://{project_config.SERVER_BE_IP}:8080/camera/{server_name}'
             res = requests.get(root_url)
             content = res.json()
             return content['data']['cameras']
@@ -39,7 +39,7 @@ class StreamManage:
     
     def update_ip(self):
         try:
-            root_url = f'26.30.0.242:8080/server/update-ip'
+            root_url = f'{project_config.SERVER_BE_IP}:8080/server/update-ip'
             res = requests.put(root_url, json={'ip': get_ipv4_address(), 'server_name': get_computer_name()})
             content = res.json()
             print(content)

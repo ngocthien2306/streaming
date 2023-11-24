@@ -25,6 +25,7 @@ class ProjectConfig(BaseSettings):
     CAMERA_DOCUMENT: str = os.getenv("CAMERA_DOCUMENT")
     SERVER_DOCUMENT: str = os.getenv("SERVER_DOCUMENT")
     DB_NAME: str = os.getenv("DB_NAME")
+    SERVER_BE_IP: str = os.getenv("SERVER_BE_IP")
     
 project_config = ProjectConfig()
 stream_config = StreamConfig()

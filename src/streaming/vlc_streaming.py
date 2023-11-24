@@ -6,7 +6,7 @@ import vlc
 import numpy as np
 from PIL import Image
 
-from utils.project_config import stream_config
+from utils.project_config import stream_config, project_config
 from utils.constants import CameraState
 from utils.logging_system import logger
 import requests
@@ -46,7 +46,7 @@ class VLCStreaming:
         
     def update_camera_status(self):
         try:
-            root_url = f'http://26.30.0.242:8080/camera/update-status'
+            root_url = f'http://{project_config.SERVER_BE_IP}:8080/camera/update-status'
             res = requests.put(root_url, json={'camera_id': self._camera_id, 'camera_status': self._state})
             content = res.json()
         except Exception as e:
@@ -68,7 +68,7 @@ class VLCStreaming:
 
     def _play_stream_process(self):
         self._state = CameraState.PLAYING
-        self.update_camera_status()
+        # self.update_camera_status()
         logger.info(f"VLC Play Streaming: {self.rtsp_link}")
         self._player = self.vlc_instance.media_player_new()
         self._player.set_mrl(self.rtsp_link)
@@ -103,13 +103,16 @@ class VLCStreaming:
             if vlc.State.Playing != player_state:
                 logger.warning(f"VLC State {player_state}: {self.rtsp_link}")
                 self._state = CameraState.DISCONNECT
+                self.update_camera_status()
+                
             if vlc.State.Ended == player_state:
                 self._player.set_mrl(self.rtsp_link)
                 vlc.libvlc_video_set_callbacks(self._player, _lockcb, None, set_current_buffer, None)
                 self._player.video_set_format("RV32", self.width_frame, self.height_frame, self.width_frame * 4)
                 self._player.play()
+                self.update_camera_status()
                 
-            self.update_camera_status()
+                
             
             time.sleep(5)
 
