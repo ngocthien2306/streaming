@@ -108,3 +108,10 @@ async def post_img(module_id: str):
         stream_manage.get_output(module_id),
         media_type="multipart/x-mixed-replace;boundary=jpgboundary"
     )
+    
+@router.get("/output/v2/{module_id}")
+async def post_img_v2(module_id: str):
+    return StreamingResponse(
+        stream_manage.get_output(module_id),
+        media_type="multipart/x-mixed-replace;boundary=jpgboundary"
+    )

@@ -15,7 +15,7 @@ class ProjectConfig(BaseSettings):
     DEBUG: bool = True
     DOCS_TITLE: str = "Camera Service"
     CAMERA_SERVICE_PORT: int = 8000
-    STREAM_ENGINE: str = os.getenv("STREAM_ENGINE", "VLC")
+    STREAM_ENGINE: str = os.getenv("STREAM_ENGINE", "CUSTOM")
     ALLOW_SHOW_STREAM: bool = os.getenv("ALLOW_SHOW_STREAM", False)
     DB_URL: str = os.getenv("DB_URL", "mongodb://localhost:27017")
     MESSAGE_QUEUE_URL: str = os.getenv("MESSAGE_QUEUE_URL", "10.17.70.10:9092")

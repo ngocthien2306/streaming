@@ -11,8 +11,8 @@ if project_config.STREAM_ENGINE == "VLC":
     from streaming.vlc_streaming import VLCStreaming as StreamEngine
 elif project_config.STREAM_ENGINE == "GS":
     from streaming.gs_streaming import GSStreaming as StreamEngine
-
-
+elif project_config.STREAM_ENGINE == "CUSTOM":
+    from streaming.custom_streaming import CustomStreaming as StreamEngine
 
 class StreamManage:
     def __init__(self) -> None:
@@ -54,6 +54,8 @@ class StreamManage:
         for record in all_records:
             record.pop("id")
             camera = model.Camera(**record)
+            print(camera.rtsp_link)
+            
             self._cameras_id.append(camera.camera_id)
             self._cameras_rtsp_link.append(camera.rtsp_link)
             self._cameras[camera.camera_id] = camera
@@ -64,6 +66,8 @@ class StreamManage:
                     output_size=(camera.output_width, camera.output_height),
                     camera_id=camera.camera_id
                     )
+            # self._players[camera.camera_id].open()
+            
             logger.info(f"Init Camera: {camera.dict()}")
 
     def add_camera(self, camera: model.Camera):

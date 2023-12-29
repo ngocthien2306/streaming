@@ -7,8 +7,7 @@ def get_ipv4_address():
 
     return ipv4_address
 
-
-
 def get_computer_name():
     computer_name = socket.gethostname()
     return computer_name
+

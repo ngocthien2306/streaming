@@ -8,6 +8,7 @@ from utils.project_config import project_config
 from router.docs_router import add_docs_router
 from router import stream_manage_router, onvif_router
 from pathlib import Path
+import multiprocessing
 
 app = FastAPI(
     version=1.0,
@@ -35,9 +36,10 @@ app.mount("/public", StaticFiles(directory="C:/Users/delai/source/repos/Fence/lo
     path="/public"
 )
 async def post_media_file(file_path):
-    video_path = Path("../logs/" + file_path)
+    video_path = Path("../logs/") / file_path
     print(video_path)
     return FileResponse(video_path, media_type="video/mp4", headers={"Content-Type": "video/mp4"})
+
 
 @app.get("/all-thread")
 def all_thread():
@@ -49,5 +51,7 @@ def all_thread():
 
 
 if __name__ == '__main__':
+    # multiprocessing.freeze_support()
+    # multiprocessing.set_start_method('spawn')
     logger.info(f"Starting Camera Service - Config: {project_config.dict()}")
     uvicorn.run(app, host="26.30.0.242", port=project_config.CAMERA_SERVICE_PORT)
